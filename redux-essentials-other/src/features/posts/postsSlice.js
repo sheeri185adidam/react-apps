@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 import { client } from '../../api/client'
 
 const initialState = {
@@ -47,11 +47,11 @@ const postsSlice = createSlice({
         state.status = 'succeeded'
 
         const posts = action.payload.map((post) => {
-            return {
-                ...post,
-                reactions: { thumbsUp: 0, hooray: 0, heart: 0, rocket: 0, eyes: 0 }
-            }
-        });
+          return {
+            ...post,
+            reactions: { thumbsUp: 0, hooray: 0, heart: 0, rocket: 0, eyes: 0 },
+          }
+        })
 
         state.posts = state.posts.concat(posts)
       })
@@ -74,9 +74,10 @@ export const selectPost = (id) => (state) => {
   return state.posts.posts.find((post) => post.id === id)
 }
 
-export const selectPostsByUserId = (id) => (state) => {
-  return state.posts.posts.filter((post) => post.user === id)
-}
+export const selectPostsByUserId = createSelector(
+  [selectPosts, (state, userId) => userId],
+  (posts, userId) => posts.filter((post) => post.user === userId)
+)
 
 export const selectFetchPostsStatus = (state) => state.posts.status
 

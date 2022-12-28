@@ -1,7 +1,9 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { client } from "../../api/client";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { client } from '../../api/client'
 
-const fetchNotifications = createAsyncThunk('notifications/fetchNotifications', async (_, getState) => {
+export const fetchNotifications = createAsyncThunk(
+  'notifications/fetchNotifications',
+  async (_, { getState }) => {
     const allNotifications = selectAllNotifications(getState())
     const [latestNotification] = allNotifications
     const latestTimestamp = latestNotification ? latestNotification.date : ''
@@ -9,20 +11,32 @@ const fetchNotifications = createAsyncThunk('notifications/fetchNotifications', 
       `/fakeApi/notifications?since=${latestTimestamp}`
     )
     return response.data
-});
+  }
+)
 
 export const notificationsSlice = createSlice({
-    name: 'notifications',
-    initialState: [],
-    reducer: {},
-    extraReducers: builder => {
-        builder.addCase(fetchNotifications.fulfilled, (state, action) => {
-            state.push(...action.payload);
-            state.sort((a, b) => b.date.localeCompare(a.date))
-        })
-    }
-});
+  name: 'notifications',
+  initialState: [],
+  reducers: {
+    notificationsRead(state, action) {
+      state.forEach((notification) => {
+        notification.read = true
+      })
+    },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchNotifications.fulfilled, (state, action) => {
+      state.push(...action.payload)
+      state.forEach((notification) => {
+        // Any notifications we've read are no longer new
+        notification.isNew = !notification.read
+      })
+      state.sort((a, b) => b.date.localeCompare(a.date))
+    })
+  },
+})
+
+export const selectAllNotifications = (state) => state.notifications
+export const { notificationsRead } = notificationsSlice.actions
 
 export default notificationsSlice.reducer
-
-export const selectAllNotifications = state => state.notifications

@@ -1,13 +1,13 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchPosts, selectFetchPostsError, selectFetchPostsStatus, selectPosts } from './postsSlice'
 import { Link } from 'react-router-dom'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { PostAuthor } from './postAuthor';
 import { PostDate } from './postDate';
 import { Spinner } from '../../components/Spinner';
 import { ReactionButtons } from './reactionButtons';
 
-const Post = ({ post }) => {
+const Post = React.memo(({ post }) => {
   return (
     <article className="post-excerpt">
       <h3>{post.title}</h3>
@@ -22,7 +22,7 @@ const Post = ({ post }) => {
       </Link>
     </article>
   )
-};
+});
 
 export const PostList = () => {
   const posts = useSelector(selectPosts)

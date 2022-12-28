@@ -7,7 +7,7 @@ export const UserPage = ({ match }) => {
   const { userId } = match.params
 
   const user = useSelector(selectUser(userId))
-  const posts = useSelector(selectPostsByUserId(userId))
+  const posts = useSelector(state => selectPostsByUserId(state, userId))
 
   const userPosts = posts.map((post) => {
     return (
