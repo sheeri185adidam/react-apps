@@ -1,13 +1,20 @@
 import { useDispatch, useSelector } from 'react-redux'
-import { fetchPosts, selectFetchPostsError, selectFetchPostsStatus, selectPosts } from './postsSlice'
+import {
+  fetchPosts,
+  selectFetchPostsError,
+  selectFetchPostsStatus,
+  selectPostById,
+  selectPostIds,
+} from './postsSlice'
 import { Link } from 'react-router-dom'
 import React, { useEffect } from 'react'
-import { PostAuthor } from './postAuthor';
-import { PostDate } from './postDate';
-import { Spinner } from '../../components/Spinner';
-import { ReactionButtons } from './reactionButtons';
+import { PostAuthor } from './postAuthor'
+import { PostDate } from './postDate'
+import { Spinner } from '../../components/Spinner'
+import { ReactionButtons } from './reactionButtons'
 
-const Post = React.memo(({ post }) => {
+const Post = ({ postId }) => {
+  const post = useSelector(state => selectPostById(state, postId))
   return (
     <article className="post-excerpt">
       <h3>{post.title}</h3>
@@ -16,19 +23,19 @@ const Post = React.memo(({ post }) => {
         <PostDate timestamp={post.date} />
       </div>
       <p className="post-content">{post.content.substring(0, 100)}</p>
-      <ReactionButtons post={post}/>
+      <ReactionButtons post={post} />
       <Link to={`/posts/${post.id}`} className="button muted-button">
         View Post
       </Link>
     </article>
   )
-});
+}
 
 export const PostList = () => {
-  const posts = useSelector(selectPosts)
+  const orderedPostIds = useSelector(selectPostIds)
   const dispatch = useDispatch()
   const fetchStatus = useSelector(selectFetchPostsStatus)
-  const fetchError = useSelector(selectFetchPostsError);
+  const fetchError = useSelector(selectFetchPostsError)
 
   useEffect(() => {
     if (fetchStatus === 'idle') {
@@ -41,13 +48,8 @@ export const PostList = () => {
   if (fetchStatus === 'pending') {
     content = <Spinner text="Loading..." />
   } else if (fetchStatus === 'succeeded') {
-    // Sort posts in reverse chronological order by datetime string
-    const orderedPosts = posts
-      .slice()
-      .sort((a, b) => b.date.localeCompare(a.date))
-
-    content = orderedPosts.map(post => (
-      <Post key={post.id} post={post} />
+    content = orderedPostIds.map((postId) => (
+      <Post key={postId} postId={postId} />
     ))
   } else if (fetchStatus === 'failed') {
     content = <div>{fetchError}</div>

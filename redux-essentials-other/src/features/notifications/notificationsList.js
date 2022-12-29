@@ -1,6 +1,6 @@
 import { notificationsRead, selectAllNotifications } from './notificationsSlice'
 import { formatDistanceToNow, parseISO } from 'date-fns'
-import { selectUsers } from '../users/usersSlice'
+import { selectAllUsers } from '../users/usersSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLayoutEffect } from 'react'
 import classnames from 'classnames'
@@ -8,7 +8,7 @@ import classnames from 'classnames'
 export const NotificationsList = () => {
   const dispatch = useDispatch()
   const notifications = useSelector(selectAllNotifications)
-  const users = useSelector(selectUsers)
+  const users = useSelector(state => selectAllUsers)
 
   useLayoutEffect(() => {
     dispatch(notificationsRead())

@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { selectPost } from "./postsSlice";
+import { selectPostById } from "./postsSlice";
 import { Link } from "react-router-dom";
 import { PostAuthor } from "./postAuthor";
 import { PostDate } from "./postDate";
@@ -7,7 +7,7 @@ import { PostDate } from "./postDate";
 export const PostPage = ({ match }) => {
     const { postId } = match.params;
 
-    const post = useSelector(selectPost(postId));
+    const post = useSelector(selectPostById(postId));
 
     if (!post) {
         return (
