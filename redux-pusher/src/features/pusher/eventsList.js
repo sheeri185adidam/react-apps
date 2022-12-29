@@ -1,11 +1,33 @@
 import { useSelector } from 'react-redux'
 import { selectEvents } from './eventsSlice'
+import { useState } from 'react'
+
+import { EventDate } from './eventDate'
+
+const EventData = ({ data }) => {
+  return <pre>{JSON.stringify(data, null, 2)}</pre>
+}
 
 const Event = ({ event }) => {
+  const [expanded, setExpanded] = useState(false)
   return (
-    <article className="event">
-      <h3>{event.name}</h3>
-      <p className="event-data">{JSON.stringify(event.data) ?? ""}</p>
+    <article className="post-excerpt">
+      <header>
+        <h3 onClick={() => setExpanded(!expanded)}>TournamentUpdatedPush</h3>
+        <div>
+          <EventDate timestamp={event.data.createdAt} />
+        </div>
+        <p className="post-content">
+          <span className="post-reason">{event.data.updateReason}</span>
+        </p>
+      </header>
+      {expanded && <EventData className="post-content" data={event.data} />}
+      <button
+        className="button muted-button"
+        onClick={() => setExpanded(!expanded)}
+      >
+        {expanded ? 'Hide Details' : 'Show Details'}
+      </button>
     </article>
   )
 }
@@ -15,12 +37,12 @@ export const EventsList = () => {
 
   const eventsList = events.map((event) => {
     return <Event key={event.id} event={event} />
-  });
+  })
 
   return (
-    <section className="events-list">
-      <h2>Events</h2>
+    <section className="posts-list">
+      <h3>Events</h3>
       {eventsList}
     </section>
-  );
+  )
 }

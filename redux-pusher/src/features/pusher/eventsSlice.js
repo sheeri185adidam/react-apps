@@ -1,7 +1,5 @@
 import { createAsyncThunk, createSlice, nanoid } from '@reduxjs/toolkit'
 
-const MAX_EVENTS = 100
-
 export const updateChannel = createAsyncThunk(
   'events/updateChannel',
   async ({ updatedChannel, pusher}, { dispatch, getState }) => {
@@ -26,19 +24,25 @@ export const updateChannel = createAsyncThunk(
 const eventsSlice = createSlice({
   name: 'events',
   initialState: {
-    channel: '',
-    events: [],
-    iterator: 0,
+    channel: null,
+    events: []
   },
   reducers: {
     addEvent(state, action) {
-      const iterator = state.iterator % MAX_EVENTS
-      state.events[iterator] = {
+      state.events.push({
         id: nanoid(),
         name: 'TournamentUpdatedPush',
-        data: action.payload ?? {},
-      }
-      state.iterator = iterator + 1
+        data: action.payload ?? {
+            createdAt: new Date().getTime()
+        },
+      })
+
+      state.events.sort((aEvent, bEvent) => {
+        const timestampA = new Date(aEvent.data.createdAt)
+        const timestampB = new Date(bEvent.data.createdAt)
+
+        return timestampB - timestampA;
+      })
     },
   },
   extraReducers: (builder) => {

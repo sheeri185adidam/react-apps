@@ -128,11 +128,17 @@ section h1 {
 
 .post-excerpt h3 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
 }
 
 p.post-content {
   margin-top: 10px;
+}
+
+.post-reason {
+  margin-left: 5px;
+  font-size: 1.25rem;
+  font-weight: 900;
 }
 
 .button {

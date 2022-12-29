@@ -12,6 +12,7 @@ import PusherConfig from './pusher.config'
 import { PusherProvider } from './app/pusher'
 import { UpdateChannelForm } from './features/pusher/eventChannel'
 import { EventsList } from './features/pusher/eventsList'
+import { EventChannelSubscription } from './features/pusher/eventChannelSubscription'
 
 Pusher.logToConsole = true
 
@@ -38,6 +39,7 @@ function App() {
               render={() => (
                 <React.Fragment>
                   <UpdateChannelForm />
+                  <EventChannelSubscription />
                   <EventsList />
                 </React.Fragment>
               )}

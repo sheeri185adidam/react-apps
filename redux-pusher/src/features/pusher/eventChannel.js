@@ -3,23 +3,24 @@ import { useDispatch } from 'react-redux'
 import { updateChannel } from './eventsSlice'
 import { usePusher } from '../../app/pusher'
 
+export const TournamentPrefix = 'poker-electricpoker-v1-';
+
 export const UpdateChannelForm = () => {
-  const tournamentPrefix = 'poker-electricpoker-v1-'
   const [tournamentId, setTournamentId] = useState('')
+
   const dispatch = useDispatch()
   const pusher = usePusher()
 
   const onTournamentIdChanged = (e) => setTournamentId(e.target.value)
 
-  const onSaveTournamentId = () => {
+  const onSubscribe = () => {
     if (tournamentId) {
       dispatch(
         updateChannel({
-          updatedChannel: `${tournamentPrefix}${tournamentId}`,
+          updatedChannel: `${TournamentPrefix}${tournamentId}`,
           pusher,
         })
       )
-      setTournamentId('')
     }
   }
 
@@ -27,19 +28,20 @@ export const UpdateChannelForm = () => {
 
   return (
     <section>
-      <h2>Tournament Channel</h2>
+      <h3>Tournament Channel</h3>
       <form>
-        <label htmlFor="tournamentId">{tournamentPrefix}</label>
+        <label htmlFor="tournamentId">Tournament Id</label>
         <input
           type="text"
           id="tournamentId"
           name="tournamentId"
           value={tournamentId}
+          placeholder="Guid"
           onChange={onTournamentIdChanged}
         />
         <button
           type="button"
-          onClick={onSaveTournamentId}
+          onClick={onSubscribe}
           disabled={!canSubscribe}
         >
           Subscribe
