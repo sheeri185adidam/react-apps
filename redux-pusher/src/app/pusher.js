@@ -1,25 +1,17 @@
-import { createContext, useContext } from 'react'
+import Pusher from 'pusher-js'
 
-const PusherContext = createContext()
-
-function PusherProvider({ pusher, children }) {
-  return (
-    <PusherContext.Provider value={{ pusher }}>
-      {children}
-    </PusherContext.Provider>
-  )
+const pusherConfig = {
+  app_id: '',
+  key: '',
+  secret: '',
+  cluster: '',
 }
 
-// Create custom hook for using the Pusher Context
-// Fail fast if not within a PusherProvider (thx Kent C. Dodds)
-function usePusher() {
-    const context = useContext(PusherContext);
-    if (!context) {
-      throw new Error("usePusher must be used within a PusherProvider");
-    }
-  
-    const { pusher } = context;
-    return pusher;
-  }
-  
-  export { PusherProvider, usePusher };
+const pusher = new Pusher(pusherConfig.key, {
+  cluster: pusherConfig.cluster,
+  forceTLS: true,
+  enabledTransports: ['ws', 'xhr_streaming'],
+  disabledTransports: ['xhr_streaming'],
+})
+
+export default pusher;

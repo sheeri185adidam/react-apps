@@ -1,60 +1,84 @@
 import { createAsyncThunk, createSlice, nanoid } from '@reduxjs/toolkit'
+import pusher from '../../app/pusher'
 
-export const updateChannel = createAsyncThunk(
-  'events/updateChannel',
-  async ({ updatedChannel, pusher}, { dispatch, getState }) => {
-    const currentChannel = selectChannel(getState());
+export const addChannel = createAsyncThunk(
+  'events/addChannel',
+  async ({ channel }, { dispatch, getState }) => {
+    if (channel) {
+      const existingChannels = selectChannels(getState())
+      if (existingChannels.indexOf(channel) < 0) {
+        const pusherChannel = pusher.subscribe(channel)
+        pusherChannel.bind_global((event, data) => {
+          dispatch(addEvent({ event, data }))
+        })
 
-    if (currentChannel) {
-      pusher.unsubscribe(currentChannel);
+        return Promise.resolve(channel)
+      } else {
+        return Promise.reject(new Error('channel is already subscribed'))
+      }
     }
+  }
+)
 
-    if (updatedChannel) {
-      const pusherChannel = pusher.subscribe(updatedChannel)
+export const removeChannel = createAsyncThunk(
+  'events/removeChannel',
+  async ({ channel }, { _, getState }) => {
+    if (channel) {
+      const existingChannels = selectChannels(getState())
+      if (existingChannels.indexOf(channel) > -1) {
+        pusher.unsubscribe(channel)
 
-      pusherChannel.bind('TournamentUpdatedPush', (data) => {
-        dispatch(addEvent(data))
-      })
+        return Promise.resolve(channel)
+      } else {
+        return Promise.reject(new Error('channel is not subscribed'))
+      }
     }
-
-    return Promise.resolve(updatedChannel);
   }
 )
 
 const eventsSlice = createSlice({
   name: 'events',
   initialState: {
-    channel: null,
-    events: []
+    channels: [],
+    events: [],
   },
   reducers: {
     addEvent(state, action) {
       state.events.push({
         id: nanoid(),
-        name: 'TournamentUpdatedPush',
-        data: action.payload ?? {
-            createdAt: new Date().getTime()
-        },
+        name: action.payload.event,
+        data: action.payload.data,
+        receivedAt: new Date().toISOString(),
       })
 
       state.events.sort((aEvent, bEvent) => {
-        const timestampA = new Date(aEvent.data.createdAt)
-        const timestampB = new Date(bEvent.data.createdAt)
+        const dateA = new Date(aEvent.receivedAt)
+        const dateB = new Date(bEvent.receivedAt)
 
-        return timestampB - timestampA;
+        return dateB - dateA
       })
+    },
+    clearEvents(state, action) {
+      state.events = []
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(updateChannel.fulfilled, (state, action) => {
-      state.channel = action.payload
-    })
+    builder
+      .addCase(addChannel.fulfilled, (state, action) => {
+        state.channels.push(action.payload)
+      })
+      .addCase(removeChannel.fulfilled, (state, action) => {
+        const index = state.channels.indexOf(action.payload)
+        if (index > -1) {
+          state.channels.splice(index, 1)
+        }
+      })
   },
 })
 
-export const selectChannel = (state) => state.events.channel
+export const selectChannels = (state) => state.events.channels
 export const selectEvents = (state) => state.events.events
 
-export const { addEvent } = eventsSlice.actions
+export const { addEvent, clearEvents } = eventsSlice.actions
 
 export default eventsSlice.reducer
