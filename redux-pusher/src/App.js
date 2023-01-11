@@ -8,9 +8,11 @@ import {
 
 import { Navbar } from './app/Navbar'
 
-import { AddChannelForm } from './features/pusher/eventChannel'
-import { EventsList } from './features/pusher/eventsList'
-import { EventChannelSubscriptions } from './features/pusher/eventChannelSubscriptions'
+import { AddChannelForm } from './features/events/eventChannel'
+import { EventsList } from './features/events/eventsList'
+import { EventChannelSubscriptions } from './features/events/eventChannelSubscriptions'
+import { PusherApp } from './features/pusher/pusherApp'
+import { PusherAppSubscription } from './features/pusher/pusherAppSubscription'
 
 function App() {
   return (
@@ -20,7 +22,17 @@ function App() {
         <Switch>
           <Route
             exact
-            path="/"
+            path="/app"
+            render={() => (
+              <React.Fragment>
+                <PusherApp />
+                <PusherAppSubscription />
+              </React.Fragment>
+            )}
+          />
+          <Route
+            exact
+            path="/events"
             render={() => (
               <React.Fragment>
                 <AddChannelForm />
@@ -29,7 +41,7 @@ function App() {
               </React.Fragment>
             )}
           />
-          <Redirect to="/" />
+          <Redirect to="/app" />
         </Switch>
       </div>
     </Router>
