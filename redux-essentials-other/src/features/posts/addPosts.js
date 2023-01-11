@@ -1,7 +1,7 @@
 import { useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { addPost } from "./postsSlice"
+import { useSelector } from "react-redux"
 import { selectAllUsers } from "../users/usersSlice"
+import { useAddPostMutation } from "../api/apiSlice"
 
 
 export const AddPostForm = () => {
@@ -9,22 +9,23 @@ export const AddPostForm = () => {
     const [content, setContent] = useState('')
     const [userId, setUserId] = useState('')
 
-    const dispatch = useDispatch();
+    const [addPost, {isLoading}] = useAddPostMutation();
+
     const users = useSelector(state => selectAllUsers(state));
 
     const onTitleChanged = e => setTitle(e.target.value);
     const onContentChanged = e => setContent(e.target.value);
     const onAuthorChanged = e => setUserId(e.target.value);
     
-    const onSavePost = () => {
-        if (title && content) {
-            dispatch(addPost({title, content, user: userId}));
+    const canSave = [title, content, userId].every(Boolean) && !isLoading
+
+    const onSavePost = async () => {
+        if (canSave) {
+            await addPost({title, content, user: userId}).unwrap();
             setTitle('');
             setContent('');
         }
     };
-
-    const canSave = Boolean(title) && Boolean(content) && Boolean(userId)
 
     const usersOptions = users.map(user => (
         <option key={user.id} value={user.id}>
