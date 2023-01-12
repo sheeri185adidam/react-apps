@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice, nanoid } from '@reduxjs/toolkit'
+import { subscribe } from '../../app/pusher'
 
 export const addChannel = createAsyncThunk(
   'events/addChannel',
@@ -6,7 +7,7 @@ export const addChannel = createAsyncThunk(
     if (channel) {
       const existingChannels = selectChannels(getState())
       if (existingChannels.indexOf(channel) < 0) {
-        const pusherChannel = window.PusherConnection.subscribe(channel)
+        const pusherChannel = subscribe(channel)
         pusherChannel.bind_global((event, data) => {
           dispatch(addEvent({ event, data }))
         })
