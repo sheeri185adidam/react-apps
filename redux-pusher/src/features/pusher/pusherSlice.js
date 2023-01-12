@@ -1,7 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import Pusher from 'pusher-js'
-
-export var PusherConnection = undefined
+import { connect, disconnect } from '../../app/pusher'
 
 export const addApp = createAsyncThunk(
   'pusher/addApp',
@@ -9,16 +7,10 @@ export const addApp = createAsyncThunk(
     if (appKey && appCluster) {
       const connection = selectPusherApp(getState())
       if (connection.appKey && connection.appCluster) {
-        PusherConnection.Connection?.disconnect()
+        disconnect()
       }
 
-      window.PusherConnection = new Pusher(appKey, {
-        cluster: appCluster,
-        forceTLS: true,
-        enabledTransports: ['ws', 'xhr_streaming'],
-        disabledTransports: ['xhr_streaming'],
-      })
-
+      connect(appKey, appCluster)
       return Promise.resolve({ appKey, appCluster })
     }
   }
